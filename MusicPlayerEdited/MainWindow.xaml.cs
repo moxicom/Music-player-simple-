@@ -17,6 +17,7 @@ using System.Windows.Shapes;
 using System.Windows.Threading;
 using TagLib;
 using static System.Net.Mime.MediaTypeNames;
+using System.Windows.Forms;
 
 namespace MusicPlayer
 {
@@ -67,7 +68,6 @@ namespace MusicPlayer
             _isPlaying = false;
             _isTrackChosen = false;
             _player = new MediaPlayer();
-            _songList.Add(new Song("C:/Users/ALEXANDER/Downloads/Stancionnyjj_smotritel_-_Upast_v_polyn_(musmore.com).mp3"));
 
             DispatcherTimer timer = new DispatcherTimer();
             timer.Interval = TimeSpan.FromSeconds(1);
@@ -106,6 +106,7 @@ namespace MusicPlayer
                     if (!_isTrackChosen && _songList.Count > 0)
                     {
                         SetSong(_songList[0]);
+                        SongsListBox.SelectedIndex = 0;
                     }
                     _player.Play();
                     _isPlaying = true;
@@ -116,12 +117,20 @@ namespace MusicPlayer
 
         private void PreviousTrackBtn_Click(object sender, RoutedEventArgs e)
         {
-
+            try
+            {
+                SongsListBox.SelectedIndex = SongsListBox.SelectedIndex - 1;
+            }
+            catch { }
         }
 
         private void NextTrackBtn_Click(object sender, RoutedEventArgs e)
         {
-
+            try
+            {
+                SongsListBox.SelectedIndex = (1 + SongsListBox.SelectedIndex) % _songList.Count;
+            }
+            catch { }
         }
 
         private void SongSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -131,7 +140,14 @@ namespace MusicPlayer
 
         private void SongsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-
+            try
+            {
+                SetSong(_songList[SongsListBox.SelectedIndex]);
+                // System.Windows.Forms.MessageBox.Show(SongsListBox.SelectedIndex.ToString());
+                _isPlaying = false;
+            }
+            catch { }
+            
         }
 
         private void SetSong(Song song)
@@ -166,6 +182,7 @@ namespace MusicPlayer
             {
                 GroupTextBlock.Text = "Missed";
             }
+
             if (song.Picture != null)
             {
                 MemoryStream stream = new MemoryStream(song.Picture.Data.Data);
@@ -179,16 +196,102 @@ namespace MusicPlayer
             }
             else
             {
-                BitmapImage bitmap = new BitmapImage();
-                bitmap.UriSource = new Uri(@"/Images/missed.png");
-                SongImage.Source = bitmap;
+                SongImage.Source = new BitmapImage(new Uri("Images/missed.png", UriKind.Relative));
             }
         }
 
         private void ChooseFolderBtn_Click(object sender, RoutedEventArgs e)
         {
-            
+            FolderBrowserDialog folderBrowserDialog = new FolderBrowserDialog();
+            DialogResult result = folderBrowserDialog.ShowDialog();
+            if (result == System.Windows.Forms.DialogResult.OK && !string.IsNullOrWhiteSpace(folderBrowserDialog.SelectedPath))
+            {
+                string[] files = Directory.GetFiles(folderBrowserDialog.SelectedPath);
+                SongsListBox.Items.Clear();
+                _songList.Clear();
+                foreach (string file in files)
+                {
+                    // System.Windows.Forms.MessageBox.Show(file);
+                    UpdateSongList(file);
+                }
+            }
+        }
 
+        private void UpdateSongList(string filePath)
+        {
+            try
+            {
+                Song newSong = new Song(filePath);
+                string s = "";
+                if (newSong.Artists.Length > 0)
+                {
+                    for (int i = 0; i < newSong.Artists.Length; ++i)
+                    {
+                        s += newSong.Artists[i];
+                        if (i != newSong.Artists.Length - 1)
+                            s += ", ";
+                    }
+                    s += " - ";
+                }
+                else
+                {
+                    s = "Missed - ";
+                }
+
+                if (newSong.Title != null && newSong.Title != "")
+                {
+                    s += newSong.Title;
+                }
+                else
+                {
+                    s += "Missed";
+                }
+                _songList.Add(newSong);
+                // System.Windows.Forms.MessageBox.Show(s);
+                SongsListBox.Items.Add(s);
+            }
+            catch { }
+        }
+
+        private void AddTrackBtn_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                _isTrackChosen = false;
+                OpenFileDialog openFileDialog = new OpenFileDialog();
+                DialogResult result = openFileDialog.ShowDialog();
+                if (result == System.Windows.Forms.DialogResult.OK)
+                {
+                    string file = openFileDialog.FileName;
+                    // System.Windows.Forms.MessageBox.Show(file);
+                    UpdateSongList(file);
+                }
+            }
+            catch { }
+        }
+
+        private void SavePlaylistBtn_Click(object sender, RoutedEventArgs e)
+        {
+            var folderDialog = new System.Windows.Forms.FolderBrowserDialog();
+
+            if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                try
+                {
+                    string selectedFilePath = folderDialog.SelectedPath;
+                    string newFolderPath = System.IO.Path.Combine(selectedFilePath, "Your playlist");
+                    System.IO.Directory.CreateDirectory(newFolderPath);
+
+                    foreach (var file in _songList)
+                    {
+                        string fileName = System.IO.Path.GetFileName(file.Path);
+                        string destinationPath = System.IO.Path.Combine(newFolderPath, fileName);
+                        System.IO.File.Copy(file.Path, destinationPath);
+                    }
+                    System.Windows.Forms.MessageBox.Show("Плейлист сохранен в " + newFolderPath);
+                }
+                catch { }
+            }
         }
     }
 }

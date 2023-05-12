@@ -6,9 +6,10 @@
         xmlns:local="clr-namespace:MusicPlayer"
         mc:Ignorable="d"
         Title="Player by Markov" Height="700" Width="800" 
-        MinWidth="800" MaxWidth="800"
+        MinWidth="800" 
         MinHeight="690"
         >
+    <!--MaxWidth="800"-->
     <Grid>
         <Grid.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -232,18 +233,115 @@
         <Grid Grid.Column="1" Margin="15 30 30 30">
             <Grid.RowDefinitions>
                 <RowDefinition Height="70" />
-                <RowDefinition Height="85*"/>
+                <RowDefinition/>
+                <RowDefinition Height="70"/>
             </Grid.RowDefinitions>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="210"/>
+                    <ColumnDefinition Width="99*"/>
+                </Grid.ColumnDefinitions>
+                
+                <Button Content="Открыть папку"
+                        Grid.Column="0"
+                        Name ="ChooseFolderBtn"
+                        Width=" 170px"
+                        FontSize="17"
+                        FontWeight="Bold"
+                        FontFamily="Segoe UI"
+                        Foreground="#363636"
+                        Click="ChooseFolderBtn_Click"
+                        HorizontalAlignment="Right" Margin="0,15,0,15"
+                        >
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Background" Value="#EFEFEF" />
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Background" Value="#D9D9D9"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border Background="{TemplateBinding Background}"
+                                        CornerRadius="20">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                            </ControlTemplate>
+                        </Button.Template>
+                </Button>
+                
+                <Button Content="+"
+                        Grid.Column="1"
+                        Name ="AddTrackBtn"
+                        Width=" 50px"
+                        FontSize="17"
+                        FontWeight="Bold"
+                        FontFamily="Segoe UI"
+                        Foreground="#363636"
+                        Click="AddTrackBtn_Click"
+                        HorizontalAlignment="Left" Margin="10,15,0,15"
+                        >
+                    <Button.Style>
+                        <Style TargetType="Button">
+                            <Setter Property="Background" Value="#EFEFEF" />
+                            <Setter Property="Cursor" Value="Hand"/>
+                            <Style.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter Property="Background" Value="#D9D9D9"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}"
+                                        CornerRadius="20">
+                                <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
 
-            <Button Content="Выбрать папку"
-                    Name ="ChooseFolderBtn"
-                    Width=" 170px"
-                    Height ="40"
-                    FontSize="17"
-                    FontWeight="Bold"
-                    FontFamily="Segoe UI"
-                    Foreground="#363636"
-                    Click="ChooseFolderBtn_Click">
+
+            <ListBox Name="SongsListBox"
+                     Grid.Row="1"
+                     Background="Transparent"
+                     BorderBrush="Transparent"
+                     SelectionChanged="SongsListBox_SelectionChanged"
+                     Foreground="#EFEFEF"
+                     >
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Foreground" Value="#EFEFEF"/>
+                        <Setter Property="FontSize"  Value="17"/>
+                        <Setter Property="Padding" Value="10 5"/>
+                        <Setter Property="FontWeight" Value="Light"/>
+
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBoxItem Content="КОРОЛЬ И ШУТ - Прыгну со скалы"></ListBoxItem>
+                <ListBoxItem Content="КОРОЛЬ И ШУТ - Прыгну со скалы"></ListBoxItem>
+
+            </ListBox>
+
+            <Button Content="Сохранить плейлист"
+                        Grid.Row="2"
+                        Name ="SavePlaylistBtn"
+                        Width=" 210px"
+                        FontSize="17"
+                        FontWeight="Bold"
+                        FontFamily="Segoe UI"
+                        Foreground="#363636"
+                        Click="SavePlaylistBtn_Click"
+                        HorizontalAlignment="Left" Margin="47,15,0,15"
+                        >
                 <Button.Style>
                     <Style TargetType="Button">
                         <Setter Property="Background" Value="#EFEFEF" />
@@ -258,48 +356,14 @@
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{TemplateBinding Background}"
-                                    CornerRadius="20">
+                                        CornerRadius="20">
                             <ContentPresenter HorizontalAlignment="Center"
-                                                  VerticalAlignment="Center"/>
+                                                      VerticalAlignment="Center"/>
                         </Border>
                     </ControlTemplate>
                 </Button.Template>
             </Button>
 
-            <ListBox x:Name="SongsListBox"
-                     Grid.Row="1"
-                     Background="Transparent"
-                     BorderBrush="Transparent"
-                     SelectionChanged="SongsListBox_SelectionChanged"
-                     >
-                <ListBox.ItemTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Name}" Margin="5"/>
-                            <TextBlock Text="{Binding Age}" Margin="5"/>
-                            <TextBlock Text="{Binding Gender}" Margin="5"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </ListBox.ItemTemplate>
-
-                <ListBox.ItemContainerStyle>
-                    <Style TargetType="ListBoxItem">
-                        <Setter Property="Foreground" Value="#EFEFEF"/>
-                        <Setter Property="Margin" Value="0 -2 0 0"/>
-                        <Setter Property="FontSize"  Value="17"/>
-                        <Setter Property="Padding" Value="10"/>
-                        <Setter Property="FontWeight" Value="Light"/>
-
-                    </Style>
-                </ListBox.ItemContainerStyle>
-                <ListBoxItem>КОРОЛЬ И ШУТ - Прыгну со скалы</ListBoxItem>
-                <ListBoxItem>КОРОЛЬ И ШУТ - Прыгну со скалы</ListBoxItem>
-                <ListBoxItem>КОРОЛЬ И ШУТ - Прыгну со скалы</ListBoxItem>
-                <ListBoxItem>КОРОЛЬ И ШУТ - Прыгну со скалы</ListBoxItem>
-                <ListBoxItem>КОРОЛЬ И ШУТ - Прыгну со скалы</ListBoxItem>
-                <ListBoxItem>КОРОЛЬ И ШУТ - Прыгну со скалы</ListBoxItem>
-                <ListBoxItem>КОРОЛЬ И ШУТ - Прыгну со скалы</ListBoxItem>
-            </ListBox>
         </Grid>
     </Grid>
 </Window>
